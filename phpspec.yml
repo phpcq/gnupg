@@ -1,0 +1,6 @@
+formatter.name: pretty
+suites:
+  default_suite:
+    namespace: Phpcq\GnuPG
+    spec_prefix: spec
+    psr4_prefix: Phpcq\GnuPG\
