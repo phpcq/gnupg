@@ -52,8 +52,8 @@ final class GnuPGBinaryWrapperTest extends TestCase
     {
         $instance = new GnuPGBinaryWrapper($this->binary, $this->homeDir, sys_get_temp_dir());
 
-        $this->expectException(Exception::class);
-        $instance->import('FOO');
+        $result = $instance->import('FOO');
+        $this->assertEquals(0, $result['imported']);
     }
 
     public function testKeyinfo(): void

@@ -47,20 +47,8 @@ final class GnuPGBinaryWrapper implements GnuPGInterface
     {
         $tmpFile = $this->createTemporaryFile($key);
 
-        try {
-            $result  = $this->execute(['--import', $tmpFile]);
-        } catch (ProcessFailedException $exception) {
-            throw new RuntimeException(
-                sprintf(
-                    'Importing key failed: %s',
-                    $exception->getProcess()->getCommandLine()
-                ),
-                $exception->getCode(),
-                $exception
-            );
-        } finally {
-            unlink($tmpFile);
-        }
+        $result = $this->execute(['--import', $tmpFile]);
+        unlink($tmpFile);
 
         if (preg_match('=.*IMPORT_OK\s(\d+)\s(.*)=', $result, $matches)) {
             return [
@@ -82,15 +70,7 @@ final class GnuPGBinaryWrapper implements GnuPGInterface
             $search
         ];
 
-        try {
-            $result = $this->execute($command);
-        } catch (ProcessFailedException $exception) {
-            throw new Exception(
-                'Getting keyinfo failed: ' . $exception->getMessage(),
-                $exception->getCode(),
-                $exception
-            );
-        }
+        $result = $this->execute($command);
 
         return $this->parseInfo($result);
     }
@@ -110,17 +90,10 @@ final class GnuPGBinaryWrapper implements GnuPGInterface
 
         $command[] = $messageFile;
 
-        try {
-            $result = $this->execute($command);
-        } catch (ProcessFailedException $exception) {
-            return false;
-        } finally {
-            unlink($messageFile);
+        $result = $this->execute($command);
 
-            if (null !== $signatureFile) {
-                unlink($signatureFile);
-            }
-        }
+        unlink($messageFile);
+        unlink($signatureFile);
 
         return $this->parseVerifyOutput($result);
     }
@@ -129,7 +102,7 @@ final class GnuPGBinaryWrapper implements GnuPGInterface
     {
         $command = array_merge($this->getDefaultCommand(), $arguments);
         $process = new Process($command);
-        $process->mustRun();
+        $process->run();
 
         return $process->getOutput();
     }
