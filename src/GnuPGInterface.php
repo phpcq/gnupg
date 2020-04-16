@@ -18,8 +18,6 @@ interface GnuPGInterface
      *
      * @return array
      *
-     * @throws Exception When import fails.
-     *
      * @see https://www.php.net/manual/function.gnupg-import.php
      */
     public function import(string $key) : array;

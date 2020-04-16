@@ -27,9 +27,8 @@ final class GnuPGExtensionWrapper implements GnuPGInterface
     public function import(string $key) : array
     {
         $result = $this->inner->import($key);
-
-        if ($result['imported'] === 0) {
-            throw new Exception('importing key failed');
+        if ($result === false) {
+            return ['imported' => 0];
         }
 
         return $result;
