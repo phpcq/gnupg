@@ -3,7 +3,10 @@
     "null", "true", "false",
     "static", "self", "parent",
     "array", "string", "int", "float", "bool", "iterable", "callable", "void", "object",
-    "Gnupg"
+    "Gnupg",
+    "Psr\\Http\\Client\\ClientExceptionInterface",
+    "Psr\\Http\\Client\\ClientInterface",
+    "Psr\\Http\\Message\\RequestFactoryInterface"
   ],
   "php-core-extensions" : [
     "standard",
