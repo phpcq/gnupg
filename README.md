@@ -12,4 +12,4 @@ For detailed description please visit our project website [phpcq.github.io](http
 
 # About this repository
 
-This repository holds the plugin interfaces used by the main tool runner [phpcq](https://github.com/phpcq/phpcq).
+This repository holds a GnuPG wrapper and signature verifier used by the main tool runner [phpcq](https://github.com/phpcq/phpcq).
