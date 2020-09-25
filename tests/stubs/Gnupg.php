@@ -7,11 +7,17 @@ namespace Phpcq\GnuPG\Test\stubs;
 class Gnupg
 {
     /** @SuppressWarnings(PHPMD) */
-    public function import(string $key) {}
+    public function import(string $key)
+    {
+    }
 
     /** @SuppressWarnings(PHPMD) */
-    public function verify(string $message, $signature) {}
+    public function verify(string $message, $signature)
+    {
+    }
 
     /** @SuppressWarnings(PHPMD) */
-    public function keyinfo(string $key) {}
+    public function keyinfo(string $key)
+    {
+    }
 }

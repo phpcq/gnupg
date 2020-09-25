@@ -9,6 +9,10 @@ use Phpcq\GnuPG\Exception\DownloadGpgKeyFailedException;
 
 final class KeyDownloader
 {
+    /**
+     * @const string[]
+     * @psalm-var list<string>
+     */
     private const DEFAULT_KEYSERVERS = [
         // keys.openpgp.org provides no user ID for some keys which leads to errors with current versions of GnuPG
         // See https://keys.openpgp.org/about/faq#older-gnupg
@@ -20,7 +24,10 @@ final class KeyDownloader
         'keys.openpgp.org',
     ];
 
-    /** @var string[] */
+    /**
+     * @var string[]
+     * @psalm-var list<string>
+     */
     private $keyServers;
 
     /**
@@ -28,6 +35,7 @@ final class KeyDownloader
      */
     private $fileDownloader;
 
+    /** @psalm-param list<string> $keyServers */
     public function __construct(
         FileDownloaderInterface $fileDownloader,
         ?array $keyServers = null
@@ -36,7 +44,7 @@ final class KeyDownloader
         $this->keyServers     = $keyServers ?: self::DEFAULT_KEYSERVERS;
     }
 
-    public function downloadKey(string $keyId) : string
+    public function downloadKey(string $keyId): string
     {
         foreach ($this->keyServers as $keyServer) {
             try {
@@ -49,7 +57,7 @@ final class KeyDownloader
         throw new DownloadGpgKeyFailedException($keyId, $this->keyServers);
     }
 
-    private function createUri(string $keyId, string $keyServer) : string
+    private function createUri(string $keyId, string $keyServer): string
     {
         return sprintf('https://%s/pks/lookup?op=get&options=mr&search=0x%s', $keyServer, $keyId);
     }

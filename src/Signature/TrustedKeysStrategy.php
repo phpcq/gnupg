@@ -25,7 +25,7 @@ final class TrustedKeysStrategy implements TrustKeyStrategyInterface
         $this->trustedKeys = $trustedKeys;
     }
 
-    public function isTrusted(string $fingerprint) : bool
+    public function isTrusted(string $fingerprint): bool
     {
         return in_array($fingerprint, $this->trustedKeys, true);
     }

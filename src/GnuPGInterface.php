@@ -8,6 +8,15 @@ use Phpcq\GnuPG\Exception\Exception;
 
 /**
  * Interface GnuPGInterface describes a subset of the supported features of the gnupg abstraction
+ *
+ * @psalm-type TKeyInfo = array{
+ *  fingerprint?: string
+ * }
+ * @psalm-type TVerifyResultItem = array{
+ *  fingerprint?: string,
+ *  summary: int
+ * }
+ * @psalm-type TVerifyResult = false|list<TVerifyResultItem>
  */
 interface GnuPGInterface
 {
@@ -20,7 +29,7 @@ interface GnuPGInterface
      *
      * @see https://www.php.net/manual/function.gnupg-import.php
      */
-    public function import(string $key) : array;
+    public function import(string $key): array;
 
     /**
      * Returns an array with information about all keys that matches the given pattern.
@@ -29,9 +38,11 @@ interface GnuPGInterface
      *
      * @return array
      *
+     * @psalm-return TKeyInfo
+     *
      * @see https://www.php.net/manual/en/function.gnupg-keyinfo.php
      */
-    public function keyinfo(string $search) : array;
+    public function keyinfo(string $search): array;
 
     /**
      * Verifies the given signed_text and returns information about the signature.
@@ -40,6 +51,8 @@ interface GnuPGInterface
      * @param string|null $signature The signature. To verify a clearsigned text, set signature to null.
      *
      * @return array|false
+     *
+     * @psalm-return TVerifyResult
      *
      * @see https://www.php.net/manual/en/function.gnupg-verify.php
      */

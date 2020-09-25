@@ -5,27 +5,36 @@ declare(strict_types=1);
 namespace Phpcq\GnuPG\Wrapper;
 
 use Gnupg;
-use Phpcq\GnuPG\Exception\Exception;
 use Phpcq\GnuPG\GnuPGInterface;
 
+/**
+ * @psalm-type TGnupgImportResult = array{imported: int}
+ * @psalm-import-type TKeyInfo from \Phpcq\GnuPG\GnuPGInterface
+ *
+ * @psalm-import-type TVerifyResult from \Phpcq\GnuPG\GnuPGInterface
+ */
 final class GnuPGExtensionWrapper implements GnuPGInterface
 {
-    /** @var Gnupg */
+    /**
+     * @var Gnupg
+     */
     private $inner;
 
     /**
      * GnuPGDecorator constructor.
-     *
-     * @param Gnupg $inner
      */
     public function __construct(Gnupg $inner)
     {
         $this->inner = $inner;
     }
 
-    /** @inheritDoc */
-    public function import(string $key) : array
+    /**
+     * @inheritDoc
+     * @psalm-return TGnupgImportResult
+     */
+    public function import(string $key): array
     {
+        /** @psalm-var TGnupgImportResult|false $result */
         $result = $this->inner->import($key);
         if ($result === false) {
             return ['imported' => 0];
@@ -35,14 +44,20 @@ final class GnuPGExtensionWrapper implements GnuPGInterface
     }
 
     /** @inheritDoc */
-    public function keyinfo(string $search) : array
+    public function keyinfo(string $search): array
     {
-        return $this->inner->keyinfo($search);
+        /** @psalm-var TKeyInfo */
+        $keyinfo = $this->inner->keyinfo($search);
+
+        return $keyinfo;
     }
 
     /** @inheritDoc */
     public function verify(string $message, ?string $signature = null)
     {
-        return $this->inner->verify($message, $signature);
+        /** @psalm-var TVerifyResult $result */
+        $result = $this->inner->verify($message, $signature);
+
+        return $result;
     }
 }

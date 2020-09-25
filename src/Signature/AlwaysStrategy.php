@@ -26,7 +26,7 @@ final class AlwaysStrategy implements TrustKeyStrategyInterface
         return new self(false);
     }
 
-    public function isTrusted(string $fingerprint) : bool
+    public function isTrusted(string $fingerprint): bool
     {
         return $this->trust;
     }

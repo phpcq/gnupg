@@ -6,5 +6,5 @@ namespace Phpcq\GnuPG\Signature;
 
 interface TrustKeyStrategyInterface
 {
-    public function isTrusted(string $fingerprint) : bool;
+    public function isTrusted(string $fingerprint): bool;
 }

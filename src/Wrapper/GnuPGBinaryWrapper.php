@@ -4,11 +4,9 @@ declare(strict_types=1);
 
 namespace Phpcq\GnuPG\Wrapper;
 
-use Phpcq\GnuPG\Exception\Exception;
-use Phpcq\GnuPG\Exception\RuntimeException;
 use Phpcq\GnuPG\GnuPGInterface;
-use Symfony\Component\Process\Exception\ProcessFailedException;
 use Symfony\Component\Process\Process;
+
 use function array_merge;
 use function explode;
 use function file_put_contents;
@@ -19,6 +17,9 @@ use function unlink;
  * Class wraps gnupg binary
  *
  * Implementation is heavily inspired by phar-io/gnupg and parsing result is copied from it.
+ *
+ * @psalm-import-type TKeyInfo from \Phpcq\GnuPG\GnuPGInterface
+ * @psalm-import-type TVerifyResult from \Phpcq\GnuPG\GnuPGInterface
  *
  * @see https://github.com/phar-io/gnupg/blob/master/src/GnuPG.php
  */
@@ -43,7 +44,7 @@ final class GnuPGBinaryWrapper implements GnuPGInterface
         $this->homeDirectory = $homeDirectory;
     }
 
-    public function import(string $key) : array
+    public function import(string $key): array
     {
         $tmpFile = $this->createTemporaryFile($key);
 
@@ -53,21 +54,21 @@ final class GnuPGBinaryWrapper implements GnuPGInterface
         if (preg_match('=.*IMPORT_OK\s(\d+)\s(.*)=', $result, $matches)) {
             return [
                 'imported'    => (int) $matches[1],
-                'fingerprint' => $matches[2]
+                'fingerprint' => $matches[2],
             ];
         }
 
         return ['imported' => 0];
     }
 
-    public function keyinfo(string $search) : array
+    public function keyinfo(string $search): array
     {
         $command = [
             '--list-keys',
             '--with-fingerprint',
             '--with-fingerprint', // duplication intentional
             '--fixed-list-mode',
-            $search
+            $search,
         ];
 
         $result = $this->execute($command);
@@ -80,7 +81,7 @@ final class GnuPGBinaryWrapper implements GnuPGInterface
         $messageFile   = $this->createTemporaryFile($message);
         $signatureFile = null;
         $command       = [
-            '--verify'
+            '--verify',
         ];
 
         if (null !== $signature) {
@@ -93,12 +94,14 @@ final class GnuPGBinaryWrapper implements GnuPGInterface
         $result = $this->execute($command);
 
         unlink($messageFile);
-        unlink($signatureFile);
+        if ($signatureFile !== null) {
+            unlink($signatureFile);
+        }
 
         return $this->parseVerifyOutput($result);
     }
 
-    private function execute(array $arguments) : string
+    private function execute(array $arguments): string
     {
         $command = array_merge($this->getDefaultCommand(), $arguments);
         $process = new Process($command);
@@ -107,7 +110,7 @@ final class GnuPGBinaryWrapper implements GnuPGInterface
         return $process->getOutput();
     }
 
-    private function getDefaultCommand() : array
+    private function getDefaultCommand(): array
     {
         return [
             $this->binaryPath,
@@ -122,11 +125,11 @@ final class GnuPGBinaryWrapper implements GnuPGInterface
             '--exit-on-status-write-error',
             '--batch',
             '--no-tty',
-            '--with-colons'
+            '--with-colons',
         ];
     }
 
-    private function createTemporaryFile(string $content) : string
+    private function createTemporaryFile(string $content): string
     {
         $tmpFile = $this->tempDirectory . '/' . uniqid('phpcq_gpg_', true);
         file_put_contents($tmpFile, $content);
@@ -134,24 +137,24 @@ final class GnuPGBinaryWrapper implements GnuPGInterface
         return $tmpFile;
     }
 
-    private function parseInfo(string $result) : array
+    /** @psalm-return TKeyInfo */
+    private function parseInfo(string $result): array
     {
         $key = [];
         $uids = [];
         $subkeys = [];
 
-        foreach(explode("\n", $result) as $line) {
+        foreach (explode("\n", $result) as $line) {
             $fragments = explode(':', $line);
 
             switch ($fragments[0]) {
                 case 'sub':
                 case 'pub':
-                {
                     $subkeys[] = array_merge(
                         [
                             'keyid'     => $fragments[4],
                             'timestamp' => (int)$fragments[5],
-                            'expires'   => (int)$fragments[6]
+                            'expires'   => (int)$fragments[6],
                         ],
                         $this->parseCapabilities($fragments[11]),
                         $this->parseValidity($fragments[1])
@@ -164,19 +167,15 @@ final class GnuPGBinaryWrapper implements GnuPGInterface
                         );
                     }
                     break;
-                }
 
                 case 'fpr':
-                {
                     $subkeys[] = array_merge(
                         ['fingerprint' => $fragments[9]],
                         array_pop($subkeys)
                     );
                     break;
-                }
 
                 case 'uid':
-                {
                     preg_match('/(.*)\s<(.*)>/', $fragments[9], $matches);
 
                     $uids[] = array_merge(
@@ -189,7 +188,6 @@ final class GnuPGBinaryWrapper implements GnuPGInterface
                         $this->parseValidity($fragments[1])
                     );
                     break;
-                }
             }
         }
 
@@ -199,7 +197,8 @@ final class GnuPGBinaryWrapper implements GnuPGInterface
         return [$key];
     }
 
-    private function parseCapabilities(string $flags): array {
+    private function parseCapabilities(string $flags): array
+    {
         /*
          * - e :: Encrypt
          * - s :: Sign
@@ -210,15 +209,16 @@ final class GnuPGBinaryWrapper implements GnuPGInterface
 
         $result = [
             'can_encrypt' => false,
-            'can_sign'    => false
+            'can_sign'    => false,
         ];
 
+        /** @psalm-var array<'s'|'e','can_sign'|'can_encrypt'> $map */
         static $map = [
             's' => 'can_sign',
-            'e' => 'can_encrypt'
+            'e' => 'can_encrypt',
         ];
 
-        foreach(\str_split(\strtolower($flags), 1) as $char) {
+        foreach (\str_split(\strtolower($flags), 1) as $char) {
             if (isset($map[$char])) {
                 $result[$map[$char]] = true;
             }
@@ -227,20 +227,22 @@ final class GnuPGBinaryWrapper implements GnuPGInterface
         return $result;
     }
 
-    private function parseValidity(string $flag): array {
+    private function parseValidity(string $flag): array
+    {
+        /** @psalm-var array<'i'|'d'|'r'|'e'|'n','invalid'|'disabled'|'revoked'|'expired'|'invalid'> $map */
         static $map = [
             'i' => 'invalid',
             'd' => 'disabled',
             'r' => 'revoked',
             'e' => 'expired',
-            'n' => 'invalid'
+            'n' => 'invalid',
         ];
 
         $parsed = [
             'disabled' => false,
             'expired'  => false,
             'revoked'  => false,
-            'invalid'  => false
+            'invalid'  => false,
         ];
 
         if (isset($map[$flag])) {
@@ -250,7 +252,10 @@ final class GnuPGBinaryWrapper implements GnuPGInterface
         return $parsed;
     }
 
-    /** @return array|false */
+    /**
+     * @return array|false
+     * @psalm-return TVerifyResult
+     */
     private function parseVerifyOutput(string $result)
     {
         $fingerprint = '';
@@ -258,7 +263,7 @@ final class GnuPGBinaryWrapper implements GnuPGInterface
         $summary = false;
         $status = explode("\n", $result);
 
-        foreach($status as $line) {
+        foreach ($status as $line) {
             $parts = explode(' ', $line);
             if (count($parts) < 3) {
                 continue;
@@ -310,7 +315,7 @@ final class GnuPGBinaryWrapper implements GnuPGInterface
             'validity'    => 0,
             'timestamp'   => $timestamp,
             'status'      => $status,
-            'summary'     => $summary
+            'summary'     => $summary,
         ]];
     }
 }

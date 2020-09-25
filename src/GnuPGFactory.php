@@ -8,6 +8,7 @@ use Gnupg;
 use Phpcq\GnuPG\Exception\RuntimeException;
 use Phpcq\GnuPG\Wrapper\GnuPGBinaryWrapper;
 use Phpcq\GnuPG\Wrapper\GnuPGExtensionWrapper;
+
 use function putenv;
 use function sprintf;
 
@@ -21,7 +22,7 @@ final class GnuPGFactory
         $this->tempDirectory = $tempDirectory;
     }
 
-    public function create(string $homeDirectory) : GnuPGInterface
+    public function create(string $homeDirectory): GnuPGInterface
     {
         try {
             return $this->createExtensionWrapper($homeDirectory);
@@ -46,6 +47,10 @@ final class GnuPGFactory
 
         putenv('GNUPGHOME=' . $homeDirectory);
 
+        /**
+         * @psalm-suppress MixedAssignment
+         * @psalm-suppress UndefinedClass - The gnupg extension might not be loaded
+         */
         $gpg = new Gnupg();
         $gpg->seterrormode(Gnupg::ERROR_EXCEPTION);
 
@@ -71,7 +76,7 @@ final class GnuPGFactory
      * @SuppressWarnings(PHPMD.UnusedLocalVariable)
      * @SuppressWarnings(PHPMD.UndefinedVariable)
      */
-    private function findBinary() : ?string
+    private function findBinary(): ?string
     {
         $which  = (stripos(PHP_OS, 'WIN') === 0) ? 'where.exe' : 'which';
         $result = exec(sprintf('%s %s', $which, 'gpg'), $output, $exitCode);

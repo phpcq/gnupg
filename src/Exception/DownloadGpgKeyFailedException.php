@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Phpcq\GnuPG\Exception;
 
 use Throwable;
+
 use function implode;
 
 final class DownloadGpgKeyFailedException extends RuntimeException
@@ -18,6 +19,7 @@ final class DownloadGpgKeyFailedException extends RuntimeException
      */
     private $keyServers;
 
+    /** @psalm-param list<string> $keyServers */
     public function __construct(
         string $fingerprint,
         array $keyServers,
@@ -43,7 +45,7 @@ final class DownloadGpgKeyFailedException extends RuntimeException
      * @psalm-return list<string>
      * @return string[]
      */
-    public function getKeyServers() : array
+    public function getKeyServers(): array
     {
         return $this->keyServers;
     }
@@ -53,7 +55,7 @@ final class DownloadGpgKeyFailedException extends RuntimeException
      *
      * @return string|null
      */
-    public function getFingerprint() : ?string
+    public function getFingerprint(): ?string
     {
         return $this->fingerprint;
     }

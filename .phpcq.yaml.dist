@@ -79,7 +79,7 @@ tasks:
     config:
       #  exclude:
       #  names:
-      names_exclude:
+      #  names_exclude:
     #  regexps_exclude:
     #  log:
     #  min_lines:

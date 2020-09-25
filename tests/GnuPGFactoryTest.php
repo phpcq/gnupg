@@ -9,6 +9,7 @@ use Phpcq\GnuPG\GnuPGFactory;
 use Phpcq\GnuPG\Wrapper\GnuPGBinaryWrapper;
 use Phpcq\GnuPG\Wrapper\GnuPGExtensionWrapper;
 use PHPUnit\Framework\TestCase;
+
 use function exec;
 use function explode;
 use function extension_loaded;
@@ -16,11 +17,13 @@ use function getcwd;
 use function sprintf;
 use function stripos;
 use function sys_get_temp_dir;
+
 use const PHP_OS;
 
+/** @covers \Phpcq\GnuPG\GnuPGFactory */
 final class GnuPGFactoryTest extends TestCase
 {
-    public function testCreate() : void
+    public function testCreate(): void
     {
         $factory = new GnuPGFactory(sys_get_temp_dir());
 
@@ -41,7 +44,7 @@ final class GnuPGFactoryTest extends TestCase
         $factory->create(getcwd());
     }
 
-    public function testCreateBinaryWrapper() : void
+    public function testCreateBinaryWrapper(): void
     {
         $binary = $this->findBinary();
         if ($binary === null) {
@@ -56,7 +59,7 @@ final class GnuPGFactoryTest extends TestCase
         $this->assertInstanceOf(GnuPGBinaryWrapper::class, $instance);
     }
 
-    public function testCreateExtensionWrapper() : void
+    public function testCreateExtensionWrapper(): void
     {
         if (!extension_loaded('gnupg')) {
             $this->markTestSkipped('Gnupg extension not loaded.');
@@ -71,7 +74,7 @@ final class GnuPGFactoryTest extends TestCase
     }
 
     /** @SuppressWarnings(PHPMD.UnusedLocalVariable) */
-    private function findBinary() : ?string
+    private function findBinary(): ?string
     {
         $which  = (stripos(PHP_OS, 'WIN') === 0) ? 'where.exe' : 'which';
         $result = exec(sprintf('%s %s', $which, 'gpg'), $output, $exitCode);

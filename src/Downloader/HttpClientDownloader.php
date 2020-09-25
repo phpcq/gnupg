@@ -23,14 +23,14 @@ final class HttpClientDownloader implements FileDownloaderInterface
         $this->requestFactory = $requestFactory;
     }
 
-    public function downloadFile(string $url) : string
+    public function downloadFile(string $url): string
     {
         try {
             $response = $this->client->sendRequest($this->requestFactory->createRequest('GET', $url));
         } catch (ClientExceptionInterface $exception) {
             throw new DownloadFailureException(
                 sprintf('Downloading file from "%s" failed', $url),
-                $exception->getCode(),
+                (int) $exception->getCode(),
                 $exception
             );
         }

@@ -34,7 +34,7 @@ final class SignatureVerifier
      * @psalm-param bool|callable(string) $trustKey
      *
      */
-    public function verify(string $content, string $signature) : VerificationResult
+    public function verify(string $content, string $signature): VerificationResult
     {
         $result = $this->doVerify($content, $signature);
         if ($result->isValid() || $result->isUnknownError()) {

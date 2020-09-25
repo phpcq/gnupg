@@ -13,5 +13,5 @@ interface FileDownloaderInterface
      *
      * @throws DownloadFailureException When a downloadKey error occurs.
      */
-    public function downloadFile(string $url) : string;
+    public function downloadFile(string $url): string;
 }

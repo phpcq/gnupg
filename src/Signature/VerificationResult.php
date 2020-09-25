@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Phpcq\GnuPG\Signature;
 
+/** phpcs:disable PSR1.Methods.CamelCapsMethodName.NotCamelCaps */
 final class VerificationResult
 {
     private $state;
@@ -18,13 +19,13 @@ final class VerificationResult
     }
 
     /** @SuppressWarnings(PHPMD.CamelCaseMethodName) */
-    public static function UNKOWN_ERROR() : self
+    public static function UNKOWN_ERROR(): self
     {
         return new self('unknown');
     }
 
     /** @SuppressWarnings(PHPMD.CamelCaseMethodName) */
-    public static function UNTRUSTED_KEY(?string $fingerprint) : self
+    public static function UNTRUSTED_KEY(?string $fingerprint): self
     {
         return new self('untrusted_key', $fingerprint);
     }
@@ -40,17 +41,17 @@ final class VerificationResult
         return $this->fingerprint;
     }
 
-    public function isUnknownError() : bool
+    public function isUnknownError(): bool
     {
         return $this->state === 'unknown';
     }
 
-    public function isValid() : bool
+    public function isValid(): bool
     {
         return $this->state === 'valid';
     }
 
-    public function isUntrustedKey() : bool
+    public function isUntrustedKey(): bool
     {
         return $this->state === 'untrusted_key';
     }
