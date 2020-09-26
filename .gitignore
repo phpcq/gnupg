@@ -17,3 +17,6 @@ composer.lock
 
 .phpunit.result.cache
 .phpcq.yaml
+.phpcq/*
+!.phpcq
+!.phpcq/local

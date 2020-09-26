@@ -1,5 +1,6 @@
 phpcq:
   repositories:
+    - ./.phpcq/local/repository.json
     - https://phpcq.github.io/repository/repository.json
   directories:
     - src
@@ -37,6 +38,9 @@ phpcq:
     composer-normalize:
       version: ^1.0
       signed: false
+    phpspec:
+      version: ^1.0
+      signed: false
   trusted-keys:
     # sb@sebastian-bergmann.de
     - 4AA394086372C20A
@@ -63,6 +67,7 @@ phpcq:
       - phpcs
       - psalm
       - phpunit
+      - phpspec
     default:
       - composer-require-checker
       - composer-normalize
@@ -72,6 +77,7 @@ phpcq:
       - phpcs
       - psalm
       - phpunit
+      - phpspec
 
 tasks:
   phpcpd:

@@ -23,6 +23,7 @@
   ],
   "require": {
     "php": "^7.3",
+    "ext-dom": "*",
     "symfony/process": "^4.0 || ^5.0"
   },
   "conflict": {
@@ -31,6 +32,7 @@
     "psr/http-message": ">=2.0"
   },
   "require-dev": {
+    "phpspec/phpspec": "^6.2",
     "psr/http-client": "^1.0",
     "psr/http-factory": "^1.0",
     "psr/http-message": "^1.0"
@@ -52,7 +54,8 @@
   },
   "autoload-dev": {
     "psr-4": {
-      "Phpcq\\GnuPG\\Test\\": "tests/"
+      "Phpcq\\GnuPG\\Test\\": "tests/",
+      "spec\\Phpcq\\GnuPG\\": "spec/"
     }
   }
 }
