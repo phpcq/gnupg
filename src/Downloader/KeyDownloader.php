@@ -19,7 +19,7 @@ final class KeyDownloader
         // Prefer hkps.pool.sks-keyservers.net instead
         // hkps.pool.sks-keyservers.net uses a self-signed cert so you might add the cert file to your file downloader
         // implementation
-        'pool.sks-keyservers.net',
+        'hkps.pool.sks-keyservers.net',
         'keyserver.ubuntu.com',
         'keys.openpgp.org',
     ];
