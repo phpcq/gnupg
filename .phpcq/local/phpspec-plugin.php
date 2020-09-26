@@ -11,7 +11,7 @@ use Phpcq\PluginApi\Version10\Output\OutputTransformerFactoryInterface;
 use Phpcq\PluginApi\Version10\Output\OutputTransformerInterface;
 use Phpcq\PluginApi\Version10\Report\TaskReportInterface;
 
-return new class implements DiagnosticsPluginInterface, OutputTransformerFactoryInterface {
+return new class implements DiagnosticsPluginInterface {
     public function getName(): string
     {
         return 'phpspec';
@@ -42,7 +42,7 @@ return new class implements DiagnosticsPluginInterface, OutputTransformerFactory
             ->getTaskFactory()
             ->buildPhpProcess('phpspec', $this->buildArguments($config))
             ->withWorkingDirectory($projectRoot)
-            ->withOutputTransformer($this)
+            ->withOutputTransformer($this->createOutputTransformer($projectRoot))
             ->build();
     }
 
@@ -64,120 +64,168 @@ return new class implements DiagnosticsPluginInterface, OutputTransformerFactory
         return $arguments;
     }
 
-    public function createFor(TaskReportInterface $report): OutputTransformerInterface
+    private function createOutputTransformer(string $rootDir): OutputTransformerFactoryInterface
     {
-        return new class($report) implements OutputTransformerInterface {
-            /** @var TaskReportInterface $report */
-            private $report;
+        return new class($rootDir) implements OutputTransformerFactoryInterface {
             /** @var string */
-            private $buffer = '';
+            private $rootDir;
 
-            public function __construct(TaskReportInterface $report)
-            {
-                $this->report = $report;
+            public function __construct(string $rootDir) {
+                $this->rootDir = $rootDir;
             }
 
-            public function write(string $data, int $channel): void
+            public function createFor(TaskReportInterface $report): OutputTransformerInterface
             {
-                if (OutputInterface::CHANNEL_STDOUT === $channel) {
-                    $this->buffer .= $data;
-                }
-            }
+                return new class($report, $this->rootDir) implements OutputTransformerInterface {
+                    /** @var TaskReportInterface $report */
+                    private $report;
+                    /** @var string */
+                    private $buffer = '';
+                    /** @var string */
+                    private $rootDir;
 
-            public function finish(int $exitCode): void
-            {
-                $xmlDocument = new DOMDocument('1.0');
-                $xmlDocument->loadXML($this->buffer);
-
-                $rootNode = $xmlDocument->firstChild;
-
-                if (!$rootNode instanceof DOMNode || $rootNode->nodeName !== 'testsuites') {
-                    return;
-                }
-
-                foreach ($rootNode->childNodes as $childNode) {
-                    if ((!$childNode instanceof DOMElement) || ($childNode->nodeName !== 'testsuite')) {
-                        continue;
-                    }
-                    $this->walkTestSuite($childNode);
-                }
-
-                $this->report->close(
-                    $exitCode === 0 ? TaskReportInterface::STATUS_PASSED : TaskReportInterface::STATUS_FAILED
-                );
-            }
-
-            private function walkTestSuite(DOMElement $testsuite): void
-            {
-                foreach ($testsuite->childNodes as $childNode) {
-                    if (!$childNode instanceof DOMElement) {
-                        continue;
+                    public function __construct(TaskReportInterface $report, string $rootDir)
+                    {
+                        $this->report = $report;
+                        $this->rootDir = $rootDir;
                     }
 
-                    switch ($childNode->nodeName) {
-                        case 'testsuite':
+                    public function write(string $data, int $channel): void
+                    {
+                        if (OutputInterface::CHANNEL_STDOUT === $channel) {
+                            $this->buffer .= $data;
+                        }
+                    }
+
+                    public function finish(int $exitCode): void
+                    {
+                        $xmlDocument = new DOMDocument('1.0');
+                        $xmlDocument->loadXML($this->buffer);
+
+                        $rootNode = $xmlDocument->firstChild;
+
+                        if (!$rootNode instanceof DOMNode || $rootNode->nodeName !== 'testsuites') {
+                            return;
+                        }
+
+                        foreach ($rootNode->childNodes as $childNode) {
+                            if ((!$childNode instanceof DOMElement) || ($childNode->nodeName !== 'testsuite')) {
+                                continue;
+                            }
                             $this->walkTestSuite($childNode);
-                            break;
-                        case 'testcase':
-                            $this->walkTestCase($childNode, $testsuite->getAttribute('name'));
-                    }
-                }
-            }
+                        }
 
-            private function walkTestCase(DOMElement $testCase, string $testSuite): void
-            {
-                $severity = $this->getSeverity($testCase);
-                if (null === $severity) {
-                    return;
-                }
-
-                $className = $classFile = $testCase->getAttribute('classname');
-                $report    = false;
-
-                foreach ($testCase->childNodes as $childNode) {
-                    if (!$childNode instanceof DOMElement) {
-                        continue;
-                    }
-                    if (! in_array($childNode->nodeName, ['failure', 'error', 'skipped'])) {
-                        continue;
+                        $this->report->close(
+                            $exitCode === 0 ? TaskReportInterface::STATUS_PASSED : TaskReportInterface::STATUS_FAILED
+                        );
                     }
 
-                    $report = true;
-                    $this->report
-                        ->addDiagnostic($severity, $childNode->getAttribute('message'))
-                        ->forClass($testSuite)
-                        ->fromSource($className . ': ' . $testCase->getAttribute('name'))
-                        ->end();
-                }
+                    private function walkTestSuite(DOMElement $testsuite): void
+                    {
+                        foreach ($testsuite->childNodes as $childNode) {
+                            if (!$childNode instanceof DOMElement) {
+                                continue;
+                            }
 
-                if ($report === false) {
-                    $this->report
-                        ->addDiagnostic($severity, $testSuite . ': ' . $testCase->getAttribute('name'))
-                        ->forClass($testSuite)
-                        ->fromSource($className);
-                }
-            }
+                            switch ($childNode->nodeName) {
+                                case 'testsuite':
+                                    $this->walkTestSuite($childNode);
+                                    break;
+                                case 'testcase':
+                                    $this->walkTestCase($childNode, $testsuite->getAttribute('name'));
+                            }
+                        }
+                    }
 
-            /** @psalm-return ?TDiagnosticSeverity */
-            private function getSeverity(DOMElement $childNode): ?string
-            {
-                switch ($childNode->getAttribute('status')) {
-                    case 'passed':
-                        return TaskReportInterface::SEVERITY_INFO;
+                    private function walkTestCase(DOMElement $testCase, string $testSuite): void
+                    {
+                        $severity = $this->getSeverity($testCase);
+                        if (null === $severity) {
+                            return;
+                        }
 
-                    case 'failed':
-                        return TaskReportInterface::SEVERITY_MAJOR;
+                        $report     = false;
+                        $className  = $classFile = $testCase->getAttribute('classname');
+                        $methodName = str_replace(' ', '_', $testCase->getAttribute('name'));
+                        $source     = $this->getSourceInformation($className, $methodName);
+                        if ($source) {
+                            $source = explode(':', $source, 2);
+                        }
 
-                    case 'broken':
-                        return TaskReportInterface::SEVERITY_MINOR;
+                        foreach ($testCase->childNodes as $childNode) {
+                            if (!$childNode instanceof DOMElement) {
+                                continue;
+                            }
+                            if (! in_array($childNode->nodeName, ['failure', 'error', 'skipped'])) {
+                                continue;
+                            }
 
-                    case 'skipped':
-                    case 'pending':
-                        return TaskReportInterface::SEVERITY_MARGINAL;
+                            $report = true;
+                            $builder = $this->report
+                                ->addDiagnostic($severity, $childNode->getAttribute('message'))
+                                ->forClass($testSuite)
+                                ->fromSource($testCase->getAttribute('name'));
 
-                    default:
-                        return null;
-                }
+                            if ($source) {
+                                $builder->forFile($this->stripRootDir($source[0]))->forRange((int) $source[1]);
+                            }
+                        }
+
+                        if ($report === false) {
+                            $builder = $this->report
+                                ->addDiagnostic($severity, $testCase->getAttribute('name'))
+                                ->forClass($testSuite)
+                                ->fromSource($className);
+
+                            if ($source) {
+                                $builder->forFile($this->stripRootDir($source[0]))->forRange((int) $source[1]);
+                            }
+                        }
+                    }
+
+                    /** @psalm-return ?TDiagnosticSeverity */
+                    private function getSeverity(DOMElement $childNode): ?string
+                    {
+                        switch ($childNode->getAttribute('status')) {
+                            case 'passed':
+                                return TaskReportInterface::SEVERITY_INFO;
+
+                            case 'failed':
+                                return TaskReportInterface::SEVERITY_MAJOR;
+
+                            case 'broken':
+                                return TaskReportInterface::SEVERITY_MINOR;
+
+                            case 'skipped':
+                            case 'pending':
+                                return TaskReportInterface::SEVERITY_MARGINAL;
+
+                            default:
+                                return null;
+                        }
+                    }
+
+                    private function getSourceInformation(string $className, string $methodName): ?string
+                    {
+                        static $cache = [];
+                        if (isset($cache[$className]) && array_key_exists($methodName, $cache[$className])) {
+                            return $cache[$className];
+                        }
+
+                        $command = '%1$s -r "require \'%2$s/vendor/autoload.php\';'
+                            . 'echo (class_exists(%3$s::class) ? ((new ReflectionClass(%3$s::class))->getFileName() '
+                            . '. \':\' . (new ReflectionMethod(%3$s::class, \'%4$s\'))->getStartLine())'
+                            . ': \'\');" 2>/dev/null';
+                        $command = sprintf($command, PHP_BINARY, $this->rootDir, $className, $methodName);
+
+                        return $cache[$className][$methodName] = shell_exec($command);
+                    }
+
+                    private function stripRootDir(string $content): string
+                    {
+                        return str_replace($this->rootDir . '/', '', $content);
+                    }
+                };
             }
         };
     }
