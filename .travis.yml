@@ -37,10 +37,10 @@ install:
         || echo dev-${TRAVIS_BRANCH}) \
         travis_retry composer update $COMPOSER_FLAGS --prefer-dist --no-interaction;
     fi
-  - ./phpcq-runner/phpcq update
+  - ./phpcq-runner/phpcq install
 
 script:
-  - ./phpcq-runner/phpcq run
+  - ./phpcq-runner/phpcq run -v
 
 # Hack to make things work again - we can not use a shallow repository.
 git:
