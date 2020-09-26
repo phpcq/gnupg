@@ -8,19 +8,20 @@ use Phpcq\GnuPG\Exception\RuntimeException;
 use PhpSpec\ObjectBehavior;
 use Phpcq\GnuPG\Exception\Exception;
 
+// phpcs:disable PSR1.Methods.CamelCapsMethodName.NotCamelCaps
 final class RuntimeExceptionSpec extends ObjectBehavior
 {
-    public function it_is_initializable() : void
+    public function it_is_initializable(): void
     {
         $this->shouldHaveType(RuntimeException::class);
     }
 
-    public function it_is_a_phpcq_gnupg_exception() : void
+    public function it_is_a_phpcq_gnupg_exception(): void
     {
         $this->shouldHaveType(Exception::class);
     }
 
-    public function it_constructs_with_parameters(Exception $exception) : void
+    public function it_constructs_with_parameters(Exception $exception): void
     {
         $this->beConstructedWith('Message', 1, $exception->getWrappedObject());
 

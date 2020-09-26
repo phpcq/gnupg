@@ -7,14 +7,15 @@ namespace spec\Phpcq\GnuPG\Signature;
 use Phpcq\GnuPG\Signature\VerificationResult;
 use PhpSpec\ObjectBehavior;
 
+// phpcs:disable PSR1.Methods.CamelCapsMethodName.NotCamelCaps
 final class VerificationResultSpec extends ObjectBehavior
 {
-    public function it_is_initializable() : void
+    public function it_is_initializable(): void
     {
         $this->shouldHaveType(VerificationResult::class);
     }
 
-    public function it_describes_unknown_error() : void
+    public function it_describes_unknown_error(): void
     {
         $this->beConstructedThrough('UNKOWN_ERROR');
 
@@ -24,7 +25,7 @@ final class VerificationResultSpec extends ObjectBehavior
         $this->isValid()->shouldReturn(false);
     }
 
-    public function it_describes_untrusted_key() : void
+    public function it_describes_untrusted_key(): void
     {
         $this->beConstructedThrough('UNTRUSTED_KEY', ['ABCD']);
 
@@ -34,7 +35,7 @@ final class VerificationResultSpec extends ObjectBehavior
         $this->isValid()->shouldReturn(false);
     }
 
-    public function it_describes_valid_key() : void
+    public function it_describes_valid_key(): void
     {
         $this->beConstructedThrough('VALID', ['ABCD']);
 

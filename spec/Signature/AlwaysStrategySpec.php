@@ -8,19 +8,20 @@ use Phpcq\GnuPG\Signature\TrustKeyStrategyInterface;
 use PhpSpec\ObjectBehavior;
 use Phpcq\GnuPG\Signature\AlwaysStrategy;
 
+// phpcs:disable PSR1.Methods.CamelCapsMethodName.NotCamelCaps
 final class AlwaysStrategySpec extends ObjectBehavior
 {
-    public function let() : void
+    public function let(): void
     {
         $this->beConstructedThrough('TRUST');
     }
 
-    public function it_is_initializable() : void
+    public function it_is_initializable(): void
     {
         $this->shouldHaveType(AlwaysStrategy::class);
     }
 
-    public function it_is_a_trust_key_strategy() : void
+    public function it_is_a_trust_key_strategy(): void
     {
         $this->shouldImplement(TrustKeyStrategyInterface::class);
     }

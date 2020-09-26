@@ -12,25 +12,28 @@ use PhpSpec\ObjectBehavior;
 use Phpcq\GnuPG\Signature\SignatureVerifier;
 use Prophecy\Argument;
 
+// phpcs:disable PSR1.Methods.CamelCapsMethodName.NotCamelCaps
 final class SignatureVerifierSpec extends ObjectBehavior
 {
     public function let(
         GnuPGInterface $gnupg,
         FileDownloaderInterface $fileDownloader,
         TrustKeyStrategyInterface $strategy
-    ) : void {
+    ): void {
         $fileDownloader->downloadFile(Argument::type('string'))->willReturn('ABCD');
 
         $this->beConstructedWith($gnupg, new KeyDownloader($fileDownloader->getWrappedObject()), $strategy);
     }
 
-    public function it_is_initializable() : void
+    public function it_is_initializable(): void
     {
         $this->shouldHaveType(SignatureVerifier::class);
     }
 
-    public function it_rejects_unknwon_key_by_default(GnuPGInterface $gnupg, FileDownloaderInterface $fileDownloader) : void
-    {
+    public function it_rejects_unknown_key_by_default(
+        GnuPGInterface $gnupg,
+        FileDownloaderInterface $fileDownloader
+    ): void {
         $this->beConstructedWith($gnupg, new KeyDownloader($fileDownloader->getWrappedObject()));
 
         $gnupg->verify('foo', 'foobar')
@@ -60,7 +63,7 @@ final class SignatureVerifierSpec extends ObjectBehavior
         $this->verify('foo', 'foobar');
     }
 
-    public function it_down_not_import_untrusted_key(
+    public function it_does_not_import_untrusted_key(
         GnuPGInterface $gnupg,
         FileDownloaderInterface $fileDownloader,
         TrustKeyStrategyInterface $strategy
@@ -80,7 +83,7 @@ final class SignatureVerifierSpec extends ObjectBehavior
         $this->verify('foo', 'foobar');
     }
 
-    public function it_returns_unknown_error_if_verify_has_an_error(GnuPGInterface $gnupg) : void
+    public function it_returns_unknown_error_if_verify_has_an_error(GnuPGInterface $gnupg): void
     {
         $gnupg->verify('foo', 'foobar')
             ->shouldBeCalled()

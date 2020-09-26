@@ -8,19 +8,20 @@ use Exception as BaseException;
 use PhpSpec\ObjectBehavior;
 use Phpcq\GnuPG\Exception\Exception;
 
+// phpcs:disable PSR1.Methods.CamelCapsMethodName.NotCamelCaps
 final class ExceptionSpec extends ObjectBehavior
 {
-    public function it_is_initializable() : void
+    public function it_is_initializable(): void
     {
         $this->shouldHaveType(Exception::class);
     }
 
-    public function it_is_a_php_exception() : void
+    public function it_is_a_php_exception(): void
     {
         $this->shouldHaveType(BaseException::class);
     }
 
-    public function it_constructs_with_parameters(BaseException $exception) : void
+    public function it_constructs_with_parameters(BaseException $exception): void
     {
         $this->beConstructedWith('Message', 1, $exception->getWrappedObject());
 

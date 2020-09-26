@@ -15,19 +15,20 @@ use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\StreamInterface;
 
+// phpcs:disable PSR1.Methods.CamelCapsMethodName.NotCamelCaps
 final class HttpClientDownloaderSpec extends ObjectBehavior
 {
-    public function let(ClientInterface $client, RequestFactoryInterface $requestFactory) : void
+    public function let(ClientInterface $client, RequestFactoryInterface $requestFactory): void
     {
         $this->beConstructedWith($client, $requestFactory);
     }
 
-    public function it_is_initializable() : void
+    public function it_is_initializable(): void
     {
         $this->shouldHaveType(HttpClientDownloader::class);
     }
 
-    public function it_is_a_file_downloader() : void
+    public function it_is_a_file_downloader(): void
     {
         $this->shouldImplement(FileDownloaderInterface::class);
     }
@@ -38,7 +39,7 @@ final class HttpClientDownloaderSpec extends ObjectBehavior
         RequestInterface $request,
         ResponseInterface $response,
         StreamInterface $body
-    ) : void {
+    ): void {
         $requestFactory->createRequest('GET', 'https://example.org/foo/bar.xml')->willReturn($request);
         $response->getBody()->willReturn($body);
         $body->getContents()->willReturn('bar');
@@ -55,10 +56,8 @@ final class HttpClientDownloaderSpec extends ObjectBehavior
         ClientInterface $client,
         RequestFactoryInterface $requestFactory,
         ClientExceptionInterface $exception,
-        RequestInterface $request,
-        ResponseInterface $response,
-        StreamInterface $body
-    ) : void {
+        RequestInterface $request
+    ): void {
         $requestFactory->createRequest('GET', 'https://example.org/foo/bar.xml')->willReturn($request);
         $client->sendRequest($request)->willThrow($exception->getWrappedObject());
 

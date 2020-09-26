@@ -4,30 +4,30 @@ declare(strict_types=1);
 
 namespace spec\Phpcq\GnuPG\Exception;
 
-use Phpcq\GnuPG\Exception\DownloadFailureException;
 use Phpcq\GnuPG\Exception\DownloadGpgKeyFailedException;
 use Phpcq\GnuPG\Exception\RuntimeException;
 use PhpSpec\ObjectBehavior;
 use Phpcq\GnuPG\Exception\Exception;
 
+// phpcs:disable PSR1.Methods.CamelCapsMethodName.NotCamelCaps
 final class DownloadGpgKeyFailedExceptionSpec extends ObjectBehavior
 {
-    public function let() : void
+    public function let(): void
     {
         $this->beConstructedWith('ABCDEF', ['example.org']);
     }
 
-    public function it_is_initializable() : void
+    public function it_is_initializable(): void
     {
         $this->shouldHaveType(DownloadGpgKeyFailedException::class);
     }
 
-    public function it_is_a_runtime_exception() : void
+    public function it_is_a_runtime_exception(): void
     {
         $this->shouldHaveType(RuntimeException::class);
     }
 
-    public function it_constructs_with_parameters(Exception $exception) : void
+    public function it_constructs_with_parameters(Exception $exception): void
     {
         $this->beConstructedWith('ABCD', ['example.org'], 'Message', 1, $exception->getWrappedObject());
 
@@ -38,7 +38,7 @@ final class DownloadGpgKeyFailedExceptionSpec extends ObjectBehavior
         $this->getPrevious()->shouldReturn($exception);
     }
 
-    public function it_creates_default_message(Exception $exception) : void
+    public function it_creates_default_message(): void
     {
         $this->beConstructedWith('ABCD', ['example.org']);
 

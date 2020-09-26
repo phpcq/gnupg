@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Phpcq\GnuPG\Test\Wrapper;
 
-use Phpcq\GnuPG\Exception\Exception;
 use Phpcq\GnuPG\Test\stubs\Gnupg;
 use Phpcq\GnuPG\Wrapper\GnuPGExtensionWrapper;
 use PHPUnit\Framework\TestCase;

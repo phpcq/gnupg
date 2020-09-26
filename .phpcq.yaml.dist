@@ -5,6 +5,7 @@ phpcq:
   directories:
     - src
     - tests
+    - spec
   artifact: .phpcq/build
 
   plugins:
@@ -64,6 +65,7 @@ phpcq:
       - phploc
       - phpcpd
       - phpmd
+      - phpmd_spec
       - phpcs
       - psalm
       - phpunit
@@ -74,6 +76,7 @@ phpcq:
       - phploc
       - phpcpd
       - phpmd
+      - phpmd_spec
       - phpcs
       - psalm
       - phpunit
@@ -95,10 +98,23 @@ tasks:
 
   phpmd:
     plugin: phpmd
+    directories:
+      - src
+      - tests
     config:
       ruleset:
         - codesize
         - controversial
+        - naming
+        - unusedcode
+
+  phpmd_spec:
+    plugin: phpmd
+    directories:
+      - spec
+    config:
+      ruleset:
+        - codesize
         - naming
         - unusedcode
 
