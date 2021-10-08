@@ -74,7 +74,6 @@ phpcq:
       - composer-require-checker
       - composer-normalize
       - phploc
-      # currently breaks due to incompatible plugin. :/
       - phpcpd
       - phpmd
       - phpmd_spec
