@@ -55,7 +55,7 @@ final class KeyDownloaderSpec extends ObjectBehavior
     public function it_throws_excpetion_if_no_server_provides_key(FileDownloaderInterface $fileDownloader): void
     {
         $fileDownloader->downloadFile(Argument::type('string'))
-            ->shouldBeCalledTimes(3)
+            ->shouldBeCalledTimes(2)
             ->willThrow(new DownloadFailureException());
 
         $this->shouldThrow(DownloadGpgKeyFailedException::class)
