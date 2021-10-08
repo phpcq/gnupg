@@ -1,10 +1,26 @@
 name: Code Quality Diagnostics
 
-on: [pull_request, push]
+on:
+  pull_request:
+  push:
+    branches:
+      - master
 
 jobs:
   build:
     runs-on: ubuntu-latest
+
+    name: PHP ${{ matrix.php }}
+
+    strategy:
+      matrix:
+        include:
+          - php: 7.3
+            output: '-o default'
+          - php: 7.4
+            output: '-o github-action -o default'
+          - php: 8.0
+            output: '-o default'
 
     steps:
       - name: Pull source
@@ -13,7 +29,7 @@ jobs:
       - name: Setup PHP with PECL extension
         uses: shivammathur/setup-php@v2
         with:
-          php-version: '7.4'
+          php-version: ${{ matrix.php }}
 
       - name: Cache composer cache directory
         uses: actions/cache@v1
@@ -37,7 +53,12 @@ jobs:
             ${{ runner.os }}-build-${{ env.cache-name }}-
 
       - name: Install phpcq toolchain
+        id: install_phpcq
         run: ./vendor/bin/phpcq install -v
+
+      - name: Install phpcq toolchain using phcq update
+        run: ./vendor/bin/phpcq update -v
+        if: always() && steps.install_phpcq.outcome == 'failure'
 
       - name: Cache phpcq directory
         uses: actions/cache@v1
@@ -50,4 +71,11 @@ jobs:
             ${{ runner.os }}-build-${{ env.cache-name }}-
 
       - name: Run tests
-        run: ./vendor/bin/phpcq run -o github-action -o default
+        run: ./vendor/bin/phpcq run -v ${{ matrix.output }}
+
+      - name: Upload build directory to artifact
+        uses: actions/upload-artifact@v2
+        if: ${{ success() }} || ${{ failure() }}
+        with:
+          name: phpcq-builds
+          path: .phpcq/build/
