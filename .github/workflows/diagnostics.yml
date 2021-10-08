@@ -17,10 +17,13 @@ jobs:
         include:
           - php: 7.3
             output: '-o default'
+            phpcq_install: 'update'
           - php: 7.4
             output: '-o github-action -o default'
+            phpcq_install: 'install'
           - php: 8.0
             output: '-o default'
+            phpcq_install: 'update'
 
     steps:
       - name: Pull source
@@ -53,12 +56,7 @@ jobs:
             ${{ runner.os }}-build-${{ env.cache-name }}-
 
       - name: Install phpcq toolchain
-        id: install_phpcq
-        run: ./vendor/bin/phpcq install -v
-
-      - name: Install phpcq toolchain using phcq update
-        run: ./vendor/bin/phpcq update -v
-        if: always() && steps.install_phpcq.outcome == 'failure'
+        run: ./vendor/bin/phpcq ${{ matrix.phpcq_install }} -v
 
       - name: Cache phpcq directory
         uses: actions/cache@v1
