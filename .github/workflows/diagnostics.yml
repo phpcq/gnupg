@@ -13,6 +13,7 @@ jobs:
     name: PHP ${{ matrix.php }}
 
     strategy:
+      fail-fast: false
       matrix:
         include:
           - php: 7.3
