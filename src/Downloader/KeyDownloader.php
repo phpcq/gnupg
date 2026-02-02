@@ -35,7 +35,7 @@ final class KeyDownloader
         ?array $keyServers = null
     ) {
         $this->fileDownloader = $fileDownloader;
-        $this->keyServers     = $keyServers ?: self::DEFAULT_KEYSERVERS;
+        $this->keyServers     = ((array) $keyServers) ?: self::DEFAULT_KEYSERVERS;
     }
 
     public function downloadKey(string $keyId): string

@@ -286,7 +286,7 @@ final class GnuPGBinaryWrapper implements GnuPGInterface
                 - <sig-class>
                 - [ <primary-key-fpr> ]
                 */
-                $timestamp = $parts[4];
+                $timestamp = (int) $parts[4];
                 $summary = 0;
                 break;
             }
@@ -300,7 +300,7 @@ final class GnuPGBinaryWrapper implements GnuPGInterface
             if (strpos($line, 'ERRSIG') !== false) {
                 // [GNUPG:] ERRSIG 4AA394086372C20A 1 10 00 1405769272 9
                 // ERRSIG  <keyid>  <pkalgo> <hashalgo> <sig_class> <time> <rc>
-                $timestamp = $parts[6];
+                $timestamp = (int) $parts[6];
                 $summary = 128;
                 break;
             }
@@ -314,7 +314,7 @@ final class GnuPGBinaryWrapper implements GnuPGInterface
             'fingerprint' => $fingerprint,
             'validity'    => 0,
             'timestamp'   => $timestamp,
-            'status'      => $status,
+            'status'      => 0,
             'summary'     => $summary,
         ]];
     }

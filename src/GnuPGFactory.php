@@ -33,7 +33,7 @@ final class GnuPGFactory
         try {
             return $this->createBinaryWrapper($homeDirectory);
         } catch (RuntimeException $exception) {
-            throw new RuntimeException(sprintf('Neighter gnugp extension loaded nor gpg binary found.'));
+            throw new RuntimeException('Neither gnugp extension loaded nor gpg binary found.');
         }
     }
 
@@ -59,7 +59,7 @@ final class GnuPGFactory
 
     public function createBinaryWrapper(string $homeDirectory, ?string $gppBinary = null): GnuPGInterface
     {
-        $gpgBinary = $gppBinary ?: $this->findBinary();
+        $gpgBinary = ((string) $gppBinary) ?: $this->findBinary();
         if (null === $gpgBinary) {
             throw new RuntimeException('Instantiating gnupg binary wrapper failed. Gnupg binary not found');
         }
@@ -81,7 +81,7 @@ final class GnuPGFactory
         $which  = (stripos(PHP_OS, 'WIN') === 0) ? 'where.exe' : 'which';
         $result = exec(sprintf('%s %s', $which, 'gpg'), $output, $exitCode);
 
-        if ($exitCode !== 0) {
+        if (($result === false) || ($exitCode !== 0)) {
             return null;
         }
 

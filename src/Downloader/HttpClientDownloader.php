@@ -30,7 +30,7 @@ final class HttpClientDownloader implements FileDownloaderInterface
         } catch (ClientExceptionInterface $exception) {
             throw new DownloadFailureException(
                 sprintf('Downloading file from "%s" failed', $url),
-                (int) $exception->getCode(),
+                $exception->getCode(),
                 $exception
             );
         }
