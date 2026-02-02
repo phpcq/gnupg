@@ -26,7 +26,7 @@ return new class implements DiagnosticsPluginInterface {
 
         $configOptionsBuilder->describeStringListOption(
             'custom_flags',
-            'Any custom flags to pass to phpunit. For valid flags refer to the phpunit documentation.',
+            'Any custom flags to pass to phpspec. For valid flags refer to the phpspec documentation.'
         );
 
         $configOptionsBuilder
@@ -35,14 +35,16 @@ return new class implements DiagnosticsPluginInterface {
             ->withDefaultValue('vendor/bin/phpspec');
     }
 
-    public function createDiagnosticTasks(PluginConfigurationInterface $config, EnvironmentInterface $environment): iterable
-    {
+    public function createDiagnosticTasks(
+        PluginConfigurationInterface $config,
+        EnvironmentInterface $environment
+    ): iterable {
         $projectRoot = $environment->getProjectConfiguration()->getProjectRootPath();
         yield $environment
             ->getTaskFactory()
             ->buildPhpProcess('phpspec', $this->buildArguments($config))
             ->withWorkingDirectory($projectRoot)
-            ->withOutputTransformer($this->createOutputTransformer($projectRoot))
+            ->withOutputTransformer($this->createOutputTransformer($projectRoot, $environment))
             ->build();
     }
 
@@ -53,7 +55,7 @@ return new class implements DiagnosticsPluginInterface {
             'run',
             '--format=junit',
             '-c',
-            $config->getString('config_file')
+            $config->getString('config_file'),
         ];
         if ($config->has('custom_flags')) {
             foreach ($config->getStringList('custom_flags') as $flag) {
@@ -64,41 +66,76 @@ return new class implements DiagnosticsPluginInterface {
         return $arguments;
     }
 
-    private function createOutputTransformer(string $rootDir): OutputTransformerFactoryInterface
-    {
-        return new class($rootDir) implements OutputTransformerFactoryInterface {
+    private function createOutputTransformer(
+        string $rootDir,
+        EnvironmentInterface $environment
+    ): OutputTransformerFactoryInterface {
+        return new class ($rootDir) implements OutputTransformerFactoryInterface {
             /** @var string */
             private $rootDir;
 
-            public function __construct(string $rootDir) {
+            public function __construct(string $rootDir)
+            {
                 $this->rootDir = $rootDir;
             }
 
             public function createFor(TaskReportInterface $report): OutputTransformerInterface
             {
-                return new class($report, $this->rootDir) implements OutputTransformerInterface {
+                return new class ($report, $this->rootDir) implements OutputTransformerInterface {
                     /** @var TaskReportInterface $report */
                     private $report;
                     /** @var string */
                     private $buffer = '';
                     /** @var string */
                     private $rootDir;
+                    /** @var string */
+                    private $errors = '';
 
                     public function __construct(TaskReportInterface $report, string $rootDir)
                     {
-                        $this->report = $report;
+                        $this->report  = $report;
                         $this->rootDir = $rootDir;
                     }
 
                     public function write(string $data, int $channel): void
                     {
-                        if (OutputInterface::CHANNEL_STDOUT === $channel) {
-                            $this->buffer .= $data;
+                        switch ($channel) {
+                            case OutputInterface::CHANNEL_STDOUT:
+                                $this->buffer .= $data;
+                                break;
+                            case OutputInterface::CHANNEL_STDERR:
+                                $this->errors .= $data;
                         }
                     }
 
                     public function finish(int $exitCode): void
                     {
+                        if ($this->errors) {
+                            $this->report
+                                ->addAttachment('error.log')
+                                ->fromString($this->errors)
+                                ->setMimeType('text/plain');
+                        }
+
+                        if (!$this->buffer) {
+                            return;
+                        }
+
+                        // Sometimes there is error output at the beginning of the buffer, if so, we log the whole
+                        // buffer and then skip to the XML to parse.
+                        $xmlStart = strpos($this->buffer, '<?xml');
+                        if ($xmlStart !== 0) {
+                            if ($xmlStart === false) {
+                                $this->report->addAttachment('output')->fromString($this->buffer)->end();
+                                $this->report->close(
+                                    $exitCode === 0 ? TaskReportInterface::STATUS_PASSED : TaskReportInterface::STATUS_FAILED
+                                );
+                                return;
+                            }
+
+                            $this->buffer = substr($this->buffer, $xmlStart);
+                        }
+
                         $xmlDocument = new DOMDocument('1.0');
                         $xmlDocument->loadXML($this->buffer);
 
@@ -145,18 +182,15 @@ return new class implements DiagnosticsPluginInterface {
                         }
 
                         $report     = false;
-                        $className  = $classFile = $testCase->getAttribute('classname');
+                        $className  = $testCase->getAttribute('classname');
                         $methodName = str_replace(' ', '_', $testCase->getAttribute('name'));
-                        $source     = $this->getSourceInformation($className, $methodName);
-                        if ($source) {
-                            $source = explode(':', $source, 2);
-                        }
+                        $source     = $this->getSourceInformation($this->rootDir, $className, $methodName);
 
                         foreach ($testCase->childNodes as $childNode) {
                             if (!$childNode instanceof DOMElement) {
                                 continue;
                             }
-                            if (! in_array($childNode->nodeName, ['failure', 'error', 'skipped'])) {
+                            if (!in_array($childNode->nodeName, ['failure', 'error', 'skipped'])) {
                                 continue;
                             }
 
@@ -205,20 +239,38 @@ return new class implements DiagnosticsPluginInterface {
                         }
                     }
 
-                    private function getSourceInformation(string $className, string $methodName): ?string
-                    {
+                    private function getSourceInformation(
+                        string $rootDir,
+                        string $className,
+                        string $methodName
+                    ): ?array {
+                        require_once $rootDir . '/vendor/autoload.php';
+
                         static $cache = [];
-                        if (isset($cache[$className]) && array_key_exists($methodName, $cache[$className])) {
-                            return $cache[$className];
+                        if (array_key_exists($className, $cache)) {
+                            if (!is_array($cache[$className])) {
+                                return null;
+                            }
+
+                            if (array_key_exists($methodName, $cache[$className])) {
+                                return $cache[$className];
+                            }
                         }
 
-                        $command = '%1$s -r "require \'%2$s/vendor/autoload.php\';'
-                            . 'echo (class_exists(%3$s::class) ? ((new ReflectionClass(%3$s::class))->getFileName() '
-                            . '. \':\' . (new ReflectionMethod(%3$s::class, \'%4$s\'))->getStartLine())'
-                            . ': \'\');" 2>/dev/null';
-                        $command = sprintf($command, PHP_BINARY, $this->rootDir, $className, $methodName);
+                        if (!class_exists($className)) {
+                            return $cache[$className] = null;
+                        }
 
-                        return $cache[$className][$methodName] = shell_exec($command);
+                        $reflectionClass  = new ReflectionClass($className);
+                        if (!$reflectionClass->hasMethod($methodName)) {
+                            return $cache[$className] = null;
+                        }
+
+                        $reflectionMethod = new ReflectionMethod($className, $methodName);
+                        $fileName         = $reflectionClass->getFileName();
+                        $startLine        = $reflectionMethod->getStartLine();
+
+                        return $cache[$className][$methodName] = [$fileName, $startLine,];
                     }
 
                     private function stripRootDir(string $content): string
