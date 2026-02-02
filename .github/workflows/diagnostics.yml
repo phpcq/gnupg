@@ -20,31 +20,43 @@ jobs:
             phpcq_install: 'update'
             phpcq_flags: ''
             composer_install: 'update --prefer-lowest'
+            extensions: ''
           - php: '8.0'
             output: '-o default'
             phpcq_install: 'update'
             phpcq_flags: ''
             composer_install: 'update'
+            extensions: ''
           - php: '8.1'
             phpcq_install: 'update'
             phpcq_flags: ''
             composer_install: 'update'
+            extensions: ''
           - php: '8.2'
             phpcq_install: 'update'
             phpcq_flags: ''
             composer_install: 'update'
+            extensions: ''
           - php: '8.3'
             phpcq_install: 'update'
             phpcq_flags: ''
             composer_install: 'update'
+            extensions: ''
           - php: '8.4'
             phpcq_install: 'update'
             phpcq_flags: ''
             composer_install: 'update'
+            extensions: ''
           - php: '8.5'
             phpcq_install: 'update'
             phpcq_flags: ''
             composer_install: 'update'
+            extensions: ''
+          - php: '8.5'
+            phpcq_install: 'update'
+            phpcq_flags: ''
+            composer_install: 'update'
+            extensions: 'gnupg'
 
     steps:
       - name: PHP ${{ matrix.php }} Pull source
@@ -57,6 +69,7 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: ${{ matrix.php }}
+          extensions: ${{ matrix.extensions }}
 
       - name: PHP ${{ matrix.php }} Cache composer cache directory
         uses: actions/cache@v5
@@ -104,5 +117,5 @@ jobs:
         uses: actions/upload-artifact@v6
         if: success() || failure()
         with:
-          name: phpcq-builds-php-${{ matrix.php }}-${{ matrix.phpcq_install }}-${{ matrix.phpcq_flags }}-${{ matrix.composer_install }}
+          name: phpcq-builds-php-${{ matrix.php }}-${{ matrix.extensions }}-${{ matrix.phpcq_install }}-${{ matrix.phpcq_flags }}-${{ matrix.composer_install }}
           path: .phpcq/build/
