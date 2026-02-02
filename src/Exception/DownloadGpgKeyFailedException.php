@@ -8,6 +8,7 @@ use Throwable;
 
 use function implode;
 
+/** @api */
 final class DownloadGpgKeyFailedException extends RuntimeException
 {
     /** @var string */
@@ -25,7 +26,7 @@ final class DownloadGpgKeyFailedException extends RuntimeException
         array $keyServers,
         ?string $message = null,
         int $code = 0,
-        Throwable $previous = null
+        ?Throwable $previous = null
     ) {
         if (null === $message) {
             $message = sprintf(

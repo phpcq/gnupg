@@ -12,6 +12,7 @@ use Phpcq\GnuPG\Wrapper\GnuPGExtensionWrapper;
 use function putenv;
 use function sprintf;
 
+/** @api */
 final class GnuPGFactory
 {
     /** @var string */

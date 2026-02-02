@@ -32,6 +32,7 @@ final class GnuPGExtensionWrapper implements GnuPGInterface
      * @inheritDoc
      * @psalm-return TGnupgImportResult
      */
+    #[\Override]
     public function import(string $key): array
     {
         /** @psalm-var TGnupgImportResult|false $result */
@@ -44,6 +45,7 @@ final class GnuPGExtensionWrapper implements GnuPGInterface
     }
 
     /** @inheritDoc */
+    #[\Override]
     public function keyinfo(string $search): array
     {
         /** @psalm-var TKeyInfo */
@@ -53,6 +55,7 @@ final class GnuPGExtensionWrapper implements GnuPGInterface
     }
 
     /** @inheritDoc */
+    #[\Override]
     public function verify(string $message, ?string $signature = null)
     {
         /** @psalm-var TVerifyResult $result */

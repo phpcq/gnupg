@@ -9,6 +9,7 @@ use Psr\Http\Client\ClientExceptionInterface;
 use Psr\Http\Client\ClientInterface;
 use Psr\Http\Message\RequestFactoryInterface;
 
+/** @api */
 final class HttpClientDownloader implements FileDownloaderInterface
 {
     /** @var ClientInterface */
@@ -23,6 +24,7 @@ final class HttpClientDownloader implements FileDownloaderInterface
         $this->requestFactory = $requestFactory;
     }
 
+    #[\Override]
     public function downloadFile(string $url): string
     {
         try {

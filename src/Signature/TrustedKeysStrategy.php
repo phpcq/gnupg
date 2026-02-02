@@ -6,6 +6,7 @@ namespace Phpcq\GnuPG\Signature;
 
 use function in_array;
 
+/** @api */
 final class TrustedKeysStrategy implements TrustKeyStrategyInterface
 {
     /**
@@ -25,6 +26,7 @@ final class TrustedKeysStrategy implements TrustKeyStrategyInterface
         $this->trustedKeys = $trustedKeys;
     }
 
+    #[\Override]
     public function isTrusted(string $fingerprint): bool
     {
         return in_array($fingerprint, $this->trustedKeys, true);

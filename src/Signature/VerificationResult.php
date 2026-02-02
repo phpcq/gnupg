@@ -4,7 +4,11 @@ declare(strict_types=1);
 
 namespace Phpcq\GnuPG\Signature;
 
-/** phpcs:disable PSR1.Methods.CamelCapsMethodName.NotCamelCaps */
+/**
+ * phpcs:disable PSR1.Methods.CamelCapsMethodName.NotCamelCaps
+ *
+ * @api
+ */
 final class VerificationResult
 {
     private $state;

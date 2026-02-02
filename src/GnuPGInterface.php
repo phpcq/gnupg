@@ -19,6 +19,8 @@ namespace Phpcq\GnuPG;
  *  summary: int
  * }
  * @psalm-type TVerifyResult = false|list<TVerifyResultItem>
+ *
+ * @api
  */
 interface GnuPGInterface
 {
@@ -27,7 +29,7 @@ interface GnuPGInterface
      *
      * @param string $key THe gpg key to import
      *
-     * @return array
+     * @return array{imported: int, fingerprint?: string}
      *
      * @see https://www.php.net/manual/function.gnupg-import.php
      */

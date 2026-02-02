@@ -34,5 +34,10 @@
                 <file name="src/GnuPGFactory.php"/>
             </errorLevel>
         </UndefinedClass>
+        <UnusedClass>
+            <errorLevel type="suppress">
+                <directory name="tests"/>
+            </errorLevel>
+        </UnusedClass>
     </issueHandlers>
 </psalm>

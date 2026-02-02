@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Phpcq\GnuPG\Wrapper;
 
+use Phpcq\GnuPG\Exception\RuntimeException;
 use Phpcq\GnuPG\GnuPGInterface;
 use Symfony\Component\Process\Process;
 
@@ -44,6 +45,7 @@ final class GnuPGBinaryWrapper implements GnuPGInterface
         $this->homeDirectory = $homeDirectory;
     }
 
+    #[\Override]
     public function import(string $key): array
     {
         $tmpFile = $this->createTemporaryFile($key);
@@ -61,6 +63,7 @@ final class GnuPGBinaryWrapper implements GnuPGInterface
         return ['imported' => 0];
     }
 
+    #[\Override]
     public function keyinfo(string $search): array
     {
         $command = [
@@ -76,6 +79,7 @@ final class GnuPGBinaryWrapper implements GnuPGInterface
         return $this->parseInfo($result);
     }
 
+    #[\Override]
     public function verify(string $message, ?string $signature = null)
     {
         $messageFile   = $this->createTemporaryFile($message);
@@ -169,9 +173,13 @@ final class GnuPGBinaryWrapper implements GnuPGInterface
                     break;
 
                 case 'fpr':
+                    $subkey = array_pop($subkeys);
+                    if (null === $subkey) {
+                        throw new RuntimeException('Failed to parse line: ' . $line);
+                    }
                     $subkeys[] = array_merge(
                         ['fingerprint' => $fragments[9]],
-                        array_pop($subkeys)
+                        $subkey
                     );
                     break;
 

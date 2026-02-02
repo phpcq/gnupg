@@ -7,6 +7,7 @@ namespace Phpcq\GnuPG\Downloader;
 use Phpcq\GnuPG\Exception\DownloadFailureException;
 use Phpcq\GnuPG\Exception\DownloadGpgKeyFailedException;
 
+/** @api */
 final class KeyDownloader
 {
     /**
