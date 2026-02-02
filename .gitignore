@@ -14,9 +14,11 @@ nbproject/
 # composer related
 vendor/
 composer.lock
+.cache
 
 .phpunit.result.cache
 .phpcq.yaml
 .phpcq/*
 !.phpcq
 !.phpcq/local
+.pdepend/*
