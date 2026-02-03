@@ -4,7 +4,11 @@ declare(strict_types=1);
 
 namespace Phpcq\GnuPG\Test\stubs;
 
-class Gnupg
+/**
+ * phpcs:disable Squiz.Classes.ValidClassName.NotCamelCaps
+ * @SuppressWarnings(PHPMD.CamelCaseClassName)
+ */
+class gnupg
 {
     /** @SuppressWarnings(PHPMD) */
     public function import(string $key)

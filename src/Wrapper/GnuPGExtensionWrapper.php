@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Phpcq\GnuPG\Wrapper;
 
-use Gnupg;
+use gnupg;
 use Phpcq\GnuPG\GnuPGInterface;
 
 /**
@@ -16,14 +16,14 @@ use Phpcq\GnuPG\GnuPGInterface;
 final class GnuPGExtensionWrapper implements GnuPGInterface
 {
     /**
-     * @var Gnupg
+     * @var gnupg
      */
     private $inner;
 
     /**
      * GnuPGDecorator constructor.
      */
-    public function __construct(Gnupg $inner)
+    public function __construct(gnupg $inner)
     {
         $this->inner = $inner;
     }

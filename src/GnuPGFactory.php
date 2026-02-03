@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Phpcq\GnuPG;
 
-use Gnupg;
+use gnupg;
 use Phpcq\GnuPG\Exception\RuntimeException;
 use Phpcq\GnuPG\Wrapper\GnuPGBinaryWrapper;
 use Phpcq\GnuPG\Wrapper\GnuPGExtensionWrapper;
@@ -52,8 +52,8 @@ final class GnuPGFactory
          * @psalm-suppress MixedAssignment
          * @psalm-suppress UndefinedClass - The gnupg extension might not be loaded
          */
-        $gpg = new Gnupg();
-        $gpg->seterrormode(Gnupg::ERROR_EXCEPTION);
+        $gpg = new gnupg();
+        $gpg->seterrormode(gnupg::ERROR_EXCEPTION);
 
         return new GnuPGExtensionWrapper($gpg);
     }

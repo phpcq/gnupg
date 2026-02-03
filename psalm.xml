@@ -12,19 +12,19 @@
         <directory name="tests" />
         <ignoreFiles>
             <file name="tests/Wrapper/GnuPGExtensionWrapperTest.php"/>
-            <file name="tests/stubs/Gnupg.php"/>
+            <file name="tests/stubs/gnupg.php"/>
         </ignoreFiles>
     </projectFiles>
 
     <issueHandlers>
         <UndefinedClass>
             <errorLevel type="suppress">
-                <referencedClass name="Gnupg"/>
+                <referencedClass name="gnupg"/>
             </errorLevel>
         </UndefinedClass>
         <UndefinedDocblockClass>
             <errorLevel type="suppress">
-                <referencedClass name="Gnupg"/>
+                <referencedClass name="gnupg"/>
             </errorLevel>
         </UndefinedDocblockClass>
         <UndefinedClass>
