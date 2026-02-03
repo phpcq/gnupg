@@ -59,7 +59,7 @@ final class GnuPGExtensionWrapper implements GnuPGInterface
     public function verify(string $message, ?string $signature = null)
     {
         /** @psalm-var TVerifyResult $result */
-        $result = $this->inner->verify($message, $signature);
+        $result = $this->inner->verify($message, (null !== $signature) ? $signature : false);
 
         return $result;
     }
