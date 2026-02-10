@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Phpcq\GnuPG\Wrapper;
 
-use Gnupg;
+use gnupg;
 use Phpcq\GnuPG\GnuPGInterface;
 
 /**
@@ -16,14 +16,14 @@ use Phpcq\GnuPG\GnuPGInterface;
 final class GnuPGExtensionWrapper implements GnuPGInterface
 {
     /**
-     * @var Gnupg
+     * @var gnupg
      */
     private $inner;
 
     /**
      * GnuPGDecorator constructor.
      */
-    public function __construct(Gnupg $inner)
+    public function __construct(gnupg $inner)
     {
         $this->inner = $inner;
     }
@@ -32,6 +32,7 @@ final class GnuPGExtensionWrapper implements GnuPGInterface
      * @inheritDoc
      * @psalm-return TGnupgImportResult
      */
+    #[\Override]
     public function import(string $key): array
     {
         /** @psalm-var TGnupgImportResult|false $result */
@@ -44,6 +45,7 @@ final class GnuPGExtensionWrapper implements GnuPGInterface
     }
 
     /** @inheritDoc */
+    #[\Override]
     public function keyinfo(string $search): array
     {
         /** @psalm-var TKeyInfo */
@@ -53,10 +55,11 @@ final class GnuPGExtensionWrapper implements GnuPGInterface
     }
 
     /** @inheritDoc */
+    #[\Override]
     public function verify(string $message, ?string $signature = null)
     {
         /** @psalm-var TVerifyResult $result */
-        $result = $this->inner->verify($message, $signature);
+        $result = $this->inner->verify($message, (null !== $signature) ? $signature : false);
 
         return $result;
     }

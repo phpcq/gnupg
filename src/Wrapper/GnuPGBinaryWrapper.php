@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Phpcq\GnuPG\Wrapper;
 
+use Phpcq\GnuPG\Exception\RuntimeException;
 use Phpcq\GnuPG\GnuPGInterface;
 use Symfony\Component\Process\Process;
 
@@ -44,6 +45,7 @@ final class GnuPGBinaryWrapper implements GnuPGInterface
         $this->homeDirectory = $homeDirectory;
     }
 
+    #[\Override]
     public function import(string $key): array
     {
         $tmpFile = $this->createTemporaryFile($key);
@@ -61,6 +63,7 @@ final class GnuPGBinaryWrapper implements GnuPGInterface
         return ['imported' => 0];
     }
 
+    #[\Override]
     public function keyinfo(string $search): array
     {
         $command = [
@@ -76,6 +79,7 @@ final class GnuPGBinaryWrapper implements GnuPGInterface
         return $this->parseInfo($result);
     }
 
+    #[\Override]
     public function verify(string $message, ?string $signature = null)
     {
         $messageFile   = $this->createTemporaryFile($message);
@@ -169,9 +173,13 @@ final class GnuPGBinaryWrapper implements GnuPGInterface
                     break;
 
                 case 'fpr':
+                    $subkey = array_pop($subkeys);
+                    if (null === $subkey) {
+                        throw new RuntimeException('Failed to parse line: ' . $line);
+                    }
                     $subkeys[] = array_merge(
                         ['fingerprint' => $fragments[9]],
-                        array_pop($subkeys)
+                        $subkey
                     );
                     break;
 
@@ -286,7 +294,7 @@ final class GnuPGBinaryWrapper implements GnuPGInterface
                 - <sig-class>
                 - [ <primary-key-fpr> ]
                 */
-                $timestamp = $parts[4];
+                $timestamp = (int) $parts[4];
                 $summary = 0;
                 break;
             }
@@ -300,7 +308,7 @@ final class GnuPGBinaryWrapper implements GnuPGInterface
             if (strpos($line, 'ERRSIG') !== false) {
                 // [GNUPG:] ERRSIG 4AA394086372C20A 1 10 00 1405769272 9
                 // ERRSIG  <keyid>  <pkalgo> <hashalgo> <sig_class> <time> <rc>
-                $timestamp = $parts[6];
+                $timestamp = (int) $parts[6];
                 $summary = 128;
                 break;
             }
@@ -314,7 +322,7 @@ final class GnuPGBinaryWrapper implements GnuPGInterface
             'fingerprint' => $fingerprint,
             'validity'    => 0,
             'timestamp'   => $timestamp,
-            'status'      => $status,
+            'status'      => 0,
             'summary'     => $summary,
         ]];
     }

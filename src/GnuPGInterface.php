@@ -4,19 +4,23 @@ declare(strict_types=1);
 
 namespace Phpcq\GnuPG;
 
-use Phpcq\GnuPG\Exception\Exception;
-
 /**
  * Interface GnuPGInterface describes a subset of the supported features of the gnupg abstraction
  *
  * @psalm-type TKeyInfo = array{
- *  fingerprint?: string
+ *  fingerprint?: string,
+ *  ...mixed
  * }
  * @psalm-type TVerifyResultItem = array{
  *  fingerprint?: string,
+ *  validity: int,
+ *  timestamp: int,
+ *  status: int,
  *  summary: int
  * }
  * @psalm-type TVerifyResult = false|list<TVerifyResultItem>
+ *
+ * @api
  */
 interface GnuPGInterface
 {
@@ -25,7 +29,7 @@ interface GnuPGInterface
      *
      * @param string $key THe gpg key to import
      *
-     * @return array
+     * @return array{imported: int, fingerprint?: string}
      *
      * @see https://www.php.net/manual/function.gnupg-import.php
      */

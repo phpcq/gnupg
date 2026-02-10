@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Phpcq\GnuPG\Test\Wrapper;
 
-use Phpcq\GnuPG\Test\stubs\Gnupg;
+use Phpcq\GnuPG\Test\stubs\gnupg;
 use Phpcq\GnuPG\Wrapper\GnuPGExtensionWrapper;
 use PHPUnit\Framework\TestCase;
 
@@ -17,16 +17,16 @@ final class GnuPGExtensionWrapperTest extends TestCase
 {
     public function setUp(): void
     {
-        if (! extension_loaded('gnupg')) {
-            if (!class_exists('\Gnupg')) {
-                class_alias(Gnupg::class, '\Gnupg');
+        if (!extension_loaded('gnupg')) {
+            if (!class_exists('\gnupg')) {
+                class_alias(gnupg::class, '\gnupg');
             }
         }
     }
 
     public function testImport(): void
     {
-        $mock = $this->createMock(\Gnupg::class);
+        $mock = $this->createMock(\gnupg::class);
 
         $mock->expects($this->once())
             ->method('import')
@@ -38,7 +38,7 @@ final class GnuPGExtensionWrapperTest extends TestCase
 
     public function testImportFailure(): void
     {
-        $mock = $this->createMock(\Gnupg::class);
+        $mock = $this->createMock(\gnupg::class);
 
         $mock->expects($this->once())
             ->method('import')
@@ -50,7 +50,7 @@ final class GnuPGExtensionWrapperTest extends TestCase
 
     public function testKeyinfo(): void
     {
-        $mock = $this->createMock(\Gnupg::class);
+        $mock = $this->createMock(\gnupg::class);
 
         $mock->expects($this->once())
             ->method('keyinfo')
@@ -62,7 +62,7 @@ final class GnuPGExtensionWrapperTest extends TestCase
 
     public function testVerify(): void
     {
-        $mock = $this->createMock(\Gnupg::class);
+        $mock = $this->createMock(\gnupg::class);
 
         $mock->expects($this->once())
             ->method('verify')

@@ -3,7 +3,7 @@
     "null", "true", "false",
     "static", "self", "parent",
     "array", "string", "int", "float", "bool", "iterable", "callable", "void", "object",
-    "Gnupg",
+    "gnupg",
     "Psr\\Http\\Client\\ClientExceptionInterface",
     "Psr\\Http\\Client\\ClientInterface",
     "Psr\\Http\\Message\\RequestFactoryInterface"

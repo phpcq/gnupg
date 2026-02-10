@@ -3,28 +3,39 @@
     totallyTyped="true"
     errorLevel="2"
     resolveFromConfigFile="true"
+    findUnusedIssueHandlerSuppression="false"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xmlns="https://getpsalm.org/schema/config"
-    xsi:schemaLocation="https://getpsalm.org/schema/config vendor/vimeo/psalm/config.xsd"
+    xsi:schemaLocation="https://getpsalm.org/schema/config https://getpsalm.org/schema/config"
 >
     <projectFiles>
         <directory name="src" />
         <directory name="tests" />
         <ignoreFiles>
             <file name="tests/Wrapper/GnuPGExtensionWrapperTest.php"/>
-            <file name="tests/stubs/Gnupg.php"/>
+            <file name="tests/stubs/gnupg.php"/>
         </ignoreFiles>
     </projectFiles>
 
     <issueHandlers>
+        <PossiblyFalseArgument>
+            <errorLevel type="suppress">
+                <!--
+                  The docs clearly state to use false as value for `false|string $signature` when validating a
+                  clearsigned text.
+                  https://www.php.net/manual/en/function.gnupg-verify.php#refsect1-function.gnupg-verify-parameters
+                -->
+                <referencedFunction name="gnupg::verify"/>
+            </errorLevel>
+        </PossiblyFalseArgument>
         <UndefinedClass>
             <errorLevel type="suppress">
-                <referencedClass name="Gnupg"/>
+                <referencedClass name="gnupg"/>
             </errorLevel>
         </UndefinedClass>
         <UndefinedDocblockClass>
             <errorLevel type="suppress">
-                <referencedClass name="Gnupg"/>
+                <referencedClass name="gnupg"/>
             </errorLevel>
         </UndefinedDocblockClass>
         <UndefinedClass>
@@ -34,5 +45,10 @@
                 <file name="src/GnuPGFactory.php"/>
             </errorLevel>
         </UndefinedClass>
+        <UnusedClass>
+            <errorLevel type="suppress">
+                <directory name="tests"/>
+            </errorLevel>
+        </UnusedClass>
     </issueHandlers>
 </psalm>

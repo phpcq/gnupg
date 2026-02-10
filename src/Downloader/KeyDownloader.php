@@ -7,6 +7,7 @@ namespace Phpcq\GnuPG\Downloader;
 use Phpcq\GnuPG\Exception\DownloadFailureException;
 use Phpcq\GnuPG\Exception\DownloadGpgKeyFailedException;
 
+/** @api */
 final class KeyDownloader
 {
     /**
@@ -35,7 +36,7 @@ final class KeyDownloader
         ?array $keyServers = null
     ) {
         $this->fileDownloader = $fileDownloader;
-        $this->keyServers     = $keyServers ?: self::DEFAULT_KEYSERVERS;
+        $this->keyServers     = ((array) $keyServers) ?: self::DEFAULT_KEYSERVERS;
     }
 
     public function downloadKey(string $keyId): string

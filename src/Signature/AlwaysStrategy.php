@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Phpcq\GnuPG\Signature;
 
+/** @api */
 final class AlwaysStrategy implements TrustKeyStrategyInterface
 {
     /** @var bool */
@@ -26,6 +27,7 @@ final class AlwaysStrategy implements TrustKeyStrategyInterface
         return new self(false);
     }
 
+    #[\Override]
     public function isTrusted(string $fingerprint): bool
     {
         return $this->trust;

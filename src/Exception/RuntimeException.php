@@ -6,5 +6,4 @@ namespace Phpcq\GnuPG\Exception;
 
 class RuntimeException extends Exception
 {
-
 }

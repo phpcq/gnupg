@@ -7,6 +7,7 @@ namespace Phpcq\GnuPG\Signature;
 use Phpcq\GnuPG\Downloader\KeyDownloader;
 use Phpcq\GnuPG\GnuPGInterface;
 
+/** @api */
 final class SignatureVerifier
 {
     /** @var GnuPGInterface */
@@ -30,10 +31,6 @@ final class SignatureVerifier
         $this->trustKeyStrategy = $unknownKeyStrategy ?: AlwaysStrategy::REJECT();
     }
 
-    /**
-     * @psalm-param bool|callable(string) $trustKey
-     *
-     */
     public function verify(string $content, string $signature): VerificationResult
     {
         $result = $this->doVerify($content, $signature);
