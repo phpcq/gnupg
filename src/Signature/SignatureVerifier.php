@@ -43,7 +43,7 @@ final class SignatureVerifier
             return VerificationResult::UNKOWN_ERROR();
         }
 
-        if (! $this->trustKeyStrategy->isTrusted($fingerprint)) {
+        if (!$this->isTrusted($fingerprint)) {
             return VerificationResult::UNTRUSTED_KEY($fingerprint);
         }
 
@@ -67,5 +67,16 @@ final class SignatureVerifier
         }
 
         return VerificationResult::VALID($fingerprint);
+    }
+
+    private function isTrusted(string $fingerprint): bool
+    {
+        if ($this->trustKeyStrategy->isTrusted($fingerprint)) {
+            return true;
+        }
+        if (16 < strlen($fingerprint)) {
+            return $this->trustKeyStrategy->isTrusted(substr($fingerprint, -16));
+        }
+        return false;
     }
 }
