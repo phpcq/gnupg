@@ -273,10 +273,10 @@ final class GnuPGBinaryWrapper implements GnuPGInterface
 
         foreach ($status as $line) {
             $parts = explode(' ', $line);
-            if (count($parts) < 3) {
+            if (count($parts) < 8) {
                 continue;
             }
-            $fingerprint = $parts[2];
+            $fingerprint = $parts[8] ?? '';
 
             if (strpos($line, 'VALIDSIG') !== false) {
                 // [GNUPG:] VALIDSIG D8406D0D82947747{...}A394072C20A 2014-07-19 1405769272 0 4 0 1 10 00 D8{...}C20A
