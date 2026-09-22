@@ -67,7 +67,7 @@ jobs:
           extensions: ${{ matrix.extensions }}
 
       - name: PHP ${{ matrix.php }} Cache composer cache directory
-        uses: actions/cache@v5
+        uses: actions/cache@v6
         env:
           cache-name: composer-cache-dir-${{ matrix.php }}-${{ matrix.composer_install }}
         with:
@@ -75,7 +75,7 @@ jobs:
           key: ${{ runner.os }}-build-${{ env.cache-name }}
 
       - name: PHP ${{ matrix.php }} Cache vendor directory
-        uses: actions/cache@v5
+        uses: actions/cache@v6
         env:
           cache-name: composer-vendor-${{ matrix.php }}-${{ matrix.composer_install }}
         with:
@@ -85,7 +85,7 @@ jobs:
             ${{ runner.os }}-build-${{ env.cache-name }}-
 
       - name: PHP ${{ matrix.php }} Cache phpcq directory
-        uses: actions/cache@v5
+        uses: actions/cache@v6
         env:
           cache-name: phpcq-dir-${{ matrix.php }}-${{ matrix.phpcq_install }}-${{ matrix.phpcq_flags }}
         with:
